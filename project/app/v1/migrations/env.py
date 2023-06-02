@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from alembic import context
 from db.config import Base
-from db.models import User, Team
+from db.models import Subscriber
 
 import os
 from dotenv import load_dotenv

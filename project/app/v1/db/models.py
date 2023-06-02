@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String,  DateTime, ForeignKey
-from sqlalchemy.orm import relationship, declarative_mixin
+from sqlalchemy import Column, Integer, String,  DateTime
+from sqlalchemy.orm import declarative_mixin
 
 from datetime import datetime
 from .config import Base
@@ -11,22 +11,11 @@ class Timestamp:
     updated_at = Column(DateTime(timezone=True), onupdate=datetime.now, default=datetime.utcnow)
 
 # Parrent
-class Team(Timestamp, Base):
+class Subscriber(Timestamp, Base):
 
-    __tablename__ = "teams"
+    __tablename__ = "subscriber_list"
 
-    team_id = Column(Integer, primary_key=True)
-    team_name = Column(String)
+    sub_id = Column(Integer, primary_key=True)
+    email = Column(String)
 
-    users = relationship("User", back_populates="teams")
 
-# Child
-class User(Timestamp, Base):
-    __tablename__ = "users"
-    
-    user_id = Column(Integer, primary_key=True)
-    username = Column(String)
-    age = Column(Integer)
-
-    team_id = Column(Integer, ForeignKey("teams.team_id"), nullable=False)
-    teams = relationship("Team", back_populates="users")

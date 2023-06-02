@@ -1,71 +1,41 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Security, status
+from fastapi.security.api_key import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
 
-from .db.models import Team, User
+
+from .db.models import Subscriber
 from .db.config import get_session
-from .db.utils import create_user, create_team, get_user, get_all_user, get_team_with_user, get_all_team, delete_user_with_id, update_user_by_id
-from .db.schemas import TeamBase, User, UserBase, TeamWithUser, Team, UserCreate
+from .db.utils import create_subscriber
+from .db.schemas import SubscriberBase
 
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 router = APIRouter(prefix="/api/v1")
 
+api_key_header = APIKeyHeader(name="X-X-KEY", auto_error=True)
 
-@router.get('/')
-async def root():
-    return {'message': 'Hello World'}
 
-@router.post("/create/user", response_model= User)
-async def create_new_user(user: UserCreate, session: AsyncSession = Depends(get_session)):
+async def get_api_key(
+    api_key_header: str = Security(api_key_header),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+        Validate API KEY
+    """
+    if api_key_header == os.getenv("XXAPI"):
+        
+        return True
     
-    return await create_user(user, session=session)
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid API Key",
+    )
 
-@router.post("/create/team", response_model= Team)
-async def create_new_team(team: TeamBase, session: AsyncSession = Depends(get_session)):
+
+@router.post("/subscribe", dependencies=[Security(get_api_key)])
+async def create_new_user(sub: SubscriberBase, session: AsyncSession = Depends(get_session)):
     
-    return await create_team(team, session=session)
-
-@router.get("/user/{id}", response_model= User)
-async def get_user_id(id: int, session: AsyncSession = Depends(get_session)):
-    
-    return await get_user(id, session=session)
-
-@router.get("/users", response_model= List[User])
-async def get_all(session: AsyncSession = Depends(get_session)):
-    user = await get_all_user(session=session)
-
-    return user
-
-@router.get("/teams", response_model= List[Team])
-async def get_all(session: AsyncSession = Depends(get_session)):
-    team = await get_all_team(session=session)
-
-    return team
-
-@router.get("/user/team/{id}", response_model=TeamWithUser)
-async def get_teamate(id: int, session: AsyncSession = Depends(get_session)):
-    data = await get_team_with_user(id, session=session)
-    
-    return data
-
-@router.delete('/user/{id}')
-async def delete_user(id: int, session: AsyncSession = Depends(get_session)):
-    
-    # check first
-    data = await get_user(id, session=session)
-
-    if data:
-        res = await delete_user_with_id(id, session=session)
-        print(res)
-
-    raise HTTPException(status_code=200, detail="User with ID {}  not exist!".format(id))
-
-@router.put('/user/{id}', response_model = User)
-async def update_user(id: int, user: UserBase, session: AsyncSession = Depends(get_session)):
-    
-    if data:= await update_user_by_id(id, user, session=session):
-        return data
-
-    raise HTTPException(status_code=404, detail="User with ID {}  not exist!".format(id))
-    
+    return await create_subscriber(sub, session=session)

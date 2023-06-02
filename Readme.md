@@ -1,21 +1,24 @@
-## Fastapi Boilerplate
+## Subscribe API
 
-Basic CRUD for (FastAPI + Pydantic + SQLalchemy Postgresql)
+API to manage Subscriber email.
+
+## Setup `dev.env`
+- Please rename `temp.env` to `dev.env`.
+- Ensure that the `XXAPI` value is set and contains at least `16 characters`.
+- The `XXAPI` value is required to protect your API endpoint.
 
 #### Requirements
 
 ```bash
-fastapi==0.79.0
-pydantic==1.9.2
-uvicorn==0.18.2
-alembic==1.8.1
-python-dotenv==0.19.2
+fastapi
+pydantic
+uvicorn
+alembic
+python-dotenv
 sqlalchemy==1.4.35
-databases==0.6.1
-# sqlmodel==0.0.6
 asyncpg==0.26.0
-pytz==2022.1
-ua_parser==0.15.0
+pytz
+ua_parser
 ```
 
 #### Docker Setup
@@ -43,5 +46,5 @@ alembic upgrade head
 #### Docker Exec
 
 ```bash
-docker exec -w /myapp/app/v1 51fa0bf13ee3 alembic upgrade head
+docker exec -w /myapp/app/v1 <container_ID> alembic upgrade head
 ```
